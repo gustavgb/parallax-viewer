@@ -1,39 +1,31 @@
 <html>
 
 <head>
-
   <title>Western Proto</title>
   <meta charset="utf-8">
-
-  <style>
-
-html, body {
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
-  position: relative;
-}
-
-body {
-  background-color: #222;
-}
-
-canvas#can {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-  </style>
-
+  <link rel="stylesheet" href="styles.css" type="text/css" />
 </head>
 
 <body>
 
-<canvas id="can"></canvas>
+  <div class="sidebar">
+    <select id="menu-select" value="background" class="select" onchange="selectMenu(this.value)">
+      <option value="background">Background</option>
+      <option value="foreground">Foreground</option>
+    </select>
+    <hr class="line">
+    <div id="menu" class="menu">
+      <!-- rendered dynamically -->
+    </div>
+  </div>
 
-<script src="script.js"></script>
+  <div class="main">
+    <button class="run-btn" onclick="init(true)">Update game</button>
+    <canvas id="can"></canvas>
+  </div>
+
+  <script src="controls.js"></script>
+  <script src="game.js"></script>
 
 </body>
 

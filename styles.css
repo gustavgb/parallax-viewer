@@ -1,0 +1,137 @@
+html, body {
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+}
+
+body {
+  background-color: #222;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+canvas {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.sidebar {
+  width: 320px;
+  height: 100vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding: 10px 0;
+  float: left;
+  background-color: #333;
+}
+
+.main {
+  width: calc(100vw - 320px);
+  position: relative;
+  float: left;
+  height: 100vh;
+}
+
+.select {
+  width: 280px;
+  padding: 10px;
+  border: 0;
+  border-radius: 5px;
+  background-color: #666;
+  color: white;
+  margin: 0 10px;
+  outline: none;
+}
+
+.line {
+  border-color: #555;
+  margin: 10px;
+  width: 280px;
+}
+
+.add-btn {
+  border: none;
+  border-radius: 5px;
+  font-size: 20px;
+  outline: none;
+  margin: 10px;
+}
+
+.image-el {
+  margin: 5px 0;
+  width: 300px;
+  background-color: #444;
+  padding: 10px 10px;
+  clear: both;
+}
+
+.image-el:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.file-select {
+  position: absolute;
+  left: -99999px;
+}
+
+.pos-btn {
+  float: right;
+  width: 50px;
+  height: 25px;
+}
+
+.speed-select {
+  width: 110px;
+  height: 25px;
+}
+
+.file-preview {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.image-left {
+  float: left;
+  width: 50px;
+}
+
+.image-right {
+  float: right;
+  width: 220px;
+}
+
+.image-right:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.image-el-header {
+  color: white;
+  margin: 0;
+  height: 25px;
+  width: 110px;
+  float: left;
+}
+
+.rm-btn {
+  float: right;
+  color: red;
+  width: 100px;
+  height: 25px;
+}
+
+.run-btn {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}

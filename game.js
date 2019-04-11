@@ -107,11 +107,9 @@ function componentPlayer (state) {
   const deltaTime = state.time.deltaTime
 
   const speedX = player.running ? player.runSpeed : player.walkSpeed
-  // const speedZ = player.walkSpeed
   let walkState = player.walkState
   let moving = false
   let direction = player.direction
-  const bounds = player.bounds
 
   if (event.keyActionDown && player.grounded) {
     player.running = true
@@ -119,7 +117,7 @@ function componentPlayer (state) {
     player.running = false
   }
 
-  if (keys.left && position.x > bounds.minX) {
+  if (keys.left && player.position.x > 0) {
     velocity.x = -speedX
     moving = true
     direction = -1
@@ -209,23 +207,20 @@ function componentRender (state, ctx) {
   const images = state.images
   const camera = state.camera
   const player = state.player
+  const backgroundSettings = state.backgroundSettings
+  const foregroundSettings = state.foregroundSettings
 
-  ctx.drawImage(images.bg4, -(camera.x / 6 % 800) + 800, 0, 800, 600)
-  ctx.drawImage(images.bg4, -(camera.x / 6 % 800), 0, 800, 600)
-  ctx.drawImage(images.bg3, -(camera.x / 5 % 800) + 800, 0, 800, 600)
-  ctx.drawImage(images.bg3, -(camera.x / 5 % 800), 0, 800, 600)
-  ctx.drawImage(images.bg2, -(camera.x / 4 % 800) + 800, 0, 800, 600)
-  ctx.drawImage(images.bg2, -(camera.x / 4 % 800), 0, 800, 600)
-  ctx.drawImage(images.bg1, -(camera.x / 3 % 800) + 800, 0, 800, 600)
-  ctx.drawImage(images.bg1, -(camera.x / 3 % 800), 0, 800, 600)
-  ctx.drawImage(images.bg0, -(camera.x / 1.5 % 800) + 800, 0, 800, 600)
-  ctx.drawImage(images.bg0, -(camera.x / 1.5 % 800), 0, 800, 600)
+  if (backgroundSettings.length === 0) {
+    ctx.clearRect(0, 0, state.width, state.height)
+  }
+
+  backgroundSettings.forEach((img, index) => {
+    ctx.drawImage(images['background' + index], -(camera.x * img.speed % 800) + 800, 0, 800, 600)
+    ctx.drawImage(images['background' + index], -(camera.x * img.speed % 800), 0, 800, 600)
+  })
 
   ctx.fillStyle = '#87875C'
   ctx.fillRect(0, 300 - camera.y, 800, 600)
-
-  // ctx.drawImage(images.cloud, -((camera.x / 5 + state.time.runTime * 10) % 800) + 800, 0, 800, 300)
-  // ctx.drawImage(images.cloud, -((camera.x / 5 + state.time.runTime * 10) % 800), 0, 800, 300)
 
   const translateX = -camera.x + state.width / 2
   const translateY = -camera.y + state.height / 2
@@ -256,16 +251,10 @@ function componentRender (state, ctx) {
 
   ctx.translate(-translateX, -translateY)
 
-  ctx.drawImage(images.fg4, -(camera.x / 0.9 % 800) + 800, 0, 800, 600)
-  ctx.drawImage(images.fg4, -(camera.x / 0.9 % 800), 0, 800, 600)
-  ctx.drawImage(images.fg3, -(camera.x / 0.75 % 800) + 800, 0, 800, 600)
-  ctx.drawImage(images.fg3, -(camera.x / 0.75 % 800), 0, 800, 600)
-  ctx.drawImage(images.fg2, -(camera.x / 0.6 % 800) + 800, 0, 800, 600)
-  ctx.drawImage(images.fg2, -(camera.x / 0.6 % 800), 0, 800, 600)
-  ctx.drawImage(images.fg1, -(camera.x / 0.45 % 800) + 800, 0, 800, 600)
-  ctx.drawImage(images.fg1, -(camera.x / 0.45 % 800), 0, 800, 600)
-  ctx.drawImage(images.fg0, -(camera.x / 0.3 % 800) + 800, 0, 800, 600)
-  ctx.drawImage(images.fg0, -(camera.x / 0.3 % 800), 0, 800, 600)
+  foregroundSettings.forEach((img, index) => {
+    ctx.drawImage(images['foreground' + index], -(camera.x * img.speed % 800) + 800, 0, 800, 600)
+    ctx.drawImage(images['foreground' + index], -(camera.x * img.speed % 800), 0, 800, 600)
+  })
 
   if (state.gameOver) {
     ctx.fillStyle = 'rgba(34, 34, 34, ' + ((Date.now() - state.gameOverTime) / 1000) + ')'
@@ -273,8 +262,9 @@ function componentRender (state, ctx) {
   }
 }
 
-var running = true
+var canvas = document.getElementById('can')
 var game = {}
+var running = true
 const graph = [
   componentInput,
   componentPlayer,
@@ -348,17 +338,11 @@ function init (force) {
           y: 0,
           z: 0
         },
-        bounds: {
-          minZ: -100,
-          maxZ: 0,
-          minX: 50
-        },
         velocity: {
           x: 0,
           y: 0,
           z: 0
         },
-        insideBush: false,
         w: 100,
         h: 120,
         walkState: 0,
@@ -375,6 +359,8 @@ function init (force) {
         zoom: 1
       },
       images: {},
+      backgroundSettings: [],
+      foregroundSettings: [],
       totalImages: 0,
       loadedImages: 0
     },
@@ -386,7 +372,7 @@ function init (force) {
     hasInitiated: false
   }
 
-  game.canvas = document.getElementById('can')
+  game.canvas = canvas
   game.ctx = game.canvas.getContext('2d')
 
   game.canvas.width = 800
@@ -411,10 +397,29 @@ function init (force) {
     playerIdle: 'image/player/idle.png',
     playerJump: 'image/player/jump.png',
     ...loadMultiple('playerWalk', 'image/player/walk', 0, 5),
-    ...loadMultiple('playerRun', 'image/player/run', 0, 11),
-    ...loadMultiple('bg', 'image/marshland/bg', 0, 4),
-    ...loadMultiple('fg', 'image/marshland/fg', 0, 4)
+    ...loadMultiple('playerRun', 'image/player/run', 0, 11)
   }
+
+  const background = window.settings.background
+  const foreground = window.settings.foreground
+  game.state.backgroundSettings = background.filter(img => !!img.path).map(img => ({
+    speed: img.speed
+  }))
+  game.state.foregroundSettings = foreground.filter(img => !!img.path).map(img => ({
+    speed: img.speed
+  }))
+
+  background.forEach((img, index) => {
+    if (img.path) {
+      paths['background' + index] = img.path
+    }
+  })
+
+  foreground.forEach((img, index) => {
+    if (img.path) {
+      paths['foreground' + index] = img.path
+    }
+  })
 
   Object.keys(paths).forEach(key => {
     const img = new window.Image()
@@ -442,48 +447,24 @@ function init (force) {
 
   game.hasInitiated = true
 
+  setTimeout(function () { running = true }, 50)
   handleGame()
+
+  console.log('Initiated instace ' + counter)
 }
 
 window.addEventListener('keydown', function (e) {
-  if (!game.keys.control) e.preventDefault()
+  if (!game.keys.control && running) e.preventDefault()
   game.keys[e.key.toLowerCase()] = true
 })
 
 window.addEventListener('keyup', function (e) {
-  if (!game.keys.control) e.preventDefault()
+  if (!game.keys.control && running) e.preventDefault()
   delete game.keys[e.key.toLowerCase()]
 })
 
-function getTrueMousePosition (e) {
-  const rect = game.canvas.getBoundingClientRect()
-
-  return {
-    x: e.clientX - rect.x,
-    y: e.clientY - rect.y
-  }
-}
-
-window.addEventListener('mousedown', function (e) {
-  game.mouseDown = true
-
-  game.mousePosition = getTrueMousePosition(e)
-})
-
-window.addEventListener('mousemove', function (e) {
-  game.mousePosition = getTrueMousePosition(e)
-})
-
-window.addEventListener('mouseup', function (e) {
-  game.mouseDown = false
-})
-
-window.addEventListener('blur', function () {
-  running = false
-})
-
-window.addEventListener('focus', function () {
-  running = true
+window.addEventListener('click', function (e) {
+  running = e.target === canvas
 })
 
 window.addEventListener('load', init)
